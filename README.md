@@ -83,3 +83,6 @@ Each partition can be up to 4 GiB.
 ### How the data are storing
 
 This is an example for the [default settings](#default-settings).
+
+![Image of Data Storing](docs/images/data_storing.png)
+
