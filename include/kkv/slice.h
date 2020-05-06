@@ -77,13 +77,13 @@ class Slice {
   };
 
   bool HasSuffix(Slice& suffix) const {
-  	if (suffix.Size() == 0)
+    if (suffix.Size() == 0)
       return true;
     else if (suffix.Size() > Size())
       return false;
 
     return (strncmp(Begin() + Size() - suffix.Size(), suffix.Data(),
-                   suffix.Size()) == 0);
+                    suffix.Size()) == 0);
   }
 
   // Use data by default while logging Slice.

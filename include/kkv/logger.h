@@ -29,9 +29,9 @@
 namespace kkv::logger {
 
 inline void Configure() {
-	spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%f] [%n] [%^%l%$] %v");
-	auto logger = spdlog::stdout_color_mt("KKV");
-	spdlog::set_default_logger(logger);
+  spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%f] [%n] [%^%l%$] %v");
+  auto logger = spdlog::stdout_color_mt("KKV");
+  spdlog::set_default_logger(logger);
 }
 
 } // namespace kkv::logger

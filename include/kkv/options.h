@@ -77,8 +77,8 @@ class BaseConfiguration {
  public:
   BaseConfiguration() : config_({
       constants::kDefaultPartitionsCount,
-		  constants::kDefaultSlotsCount,
-		  static_cast<uint32_t>(constants::SectorSize::kDefaultSectorSize)}) {};
+      constants::kDefaultSlotsCount,
+      static_cast<uint32_t>(constants::SectorSize::kDefaultSectorSize)}) {};
 
   uint16_t GetPartitionsCount() const;
   uint16_t GetSlotsCount() const;

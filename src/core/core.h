@@ -22,26 +22,26 @@ namespace kkv {
 
 class DBCore : public DB {
  public:
-	DBCore(const Slice& path, Options& options);
+  DBCore(const Slice& path, Options& options);
 
-	DBCore(const DBCore&) = delete;
-	DBCore& operator=(const DBCore&) = delete;
+  DBCore(const DBCore&) = delete;
+  DBCore& operator=(const DBCore&) = delete;
 
-	~DBCore() override;
+  ~DBCore() override;
 
-	Status status_;
+  Status status_;
 
  private:
-	friend class DB;
+  friend class DB;
 
-	const std::shared_ptr<Options> options_;
+  const std::shared_ptr<Options> options_;
 
-	std::unique_ptr<Configuration> configuration_;
-	FILE* lock_file_;
-	Paths paths_;
-	Streamer* streamer_;
+  std::unique_ptr<Configuration> configuration_;
+  FILE* lock_file_;
+  Paths paths_;
+  Streamer* streamer_;
 };
 
 } // namespace kkv
 
-#endif	// KKV_CORE_CORE_H_
+#endif  // KKV_CORE_CORE_H_
