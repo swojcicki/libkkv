@@ -4,6 +4,10 @@ project(kkv)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if(NOT DEFINED KKV_BUILD_EXAMPLE_TEST)
+    option(KKV_BUILD_EXAMPLE_TEST "Build test examples" OFF)
+endif()
+
 set(kkv_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/include)
 
 set(kkv_HEADERS
@@ -75,4 +79,32 @@ target_link_libraries(${kkv_library_TARGET} spdlog)
 
 if ((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "GNU"))
     target_compile_options(${kkv_library_TARGET} PRIVATE "-Wunused-parameter")
+endif()
+
+if(KKV_BUILD_EXAMPLE_TEST)
+    set(kkv_example_test_HEADERS
+        example/test/test.h
+        )
+
+    set(kkv_example_test_SOURCES
+        example/test/test.cc
+
+        example/test/test_db.cc
+        example/test/test_slice.cc
+        )
+
+    set(kkv_example_test_TARGET "test")
+
+    source_group(kkv\\example\\test FILES ${kkv_example_test_SOURCES})
+    source_group(kkv\\example\\test FILES ${kkv_example_test_HEADERS})
+
+    add_executable(${kkv_example_test_TARGET} ${kkv_example_test_SOURCES} ${kkv_example_test_HEADERS})
+
+    set_target_properties(${kkv_example_test_TARGET}
+        PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/example/test"
+        )
+
+    target_include_directories(${kkv_example_test_TARGET} PRIVATE ${kkv_INCLUDE_DIR})
+    target_link_libraries(${kkv_example_test_TARGET} PRIVATE ${kkv_library_TARGET})
 endif()
