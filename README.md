@@ -1,3 +1,17 @@
+# KKV
+
+## Developing
+
+### Build
+
+```bash
+sh build_example_test.sh
+```
+
+### Code style
+
+While coding please follow the [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html).
+
 # KKV - Working principle
 
 ## Terms
@@ -85,4 +99,3 @@ Each partition can be up to 4 GiB.
 This is an example for the [default settings](#default-settings).
 
 ![Image of Data Storing](docs/images/data_storing.png)
-

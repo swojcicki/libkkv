@@ -22,25 +22,25 @@ namespace kkv {
 
 class Configuration : public FileSystemUtils {
  public:
-	Configuration(const fs::path& path, std::shared_ptr<BaseConfiguration> config)
-			: path_(path),
-				config_(std::move(config)),
-				config_file_(nullptr) {};
+  Configuration(const fs::path& path, std::shared_ptr<BaseConfiguration> config)
+      : path_(path),
+        config_(std::move(config)),
+        config_file_(nullptr) {};
 
-	~Configuration();
+  ~Configuration();
 
-	Result Open();
+  Result Open();
 
  private:
-	bool Dump();
-	bool Load();
+  bool Dump();
+  bool Load();
 
-	const fs::path& path_;
+  const fs::path& path_;
 
-	std::shared_ptr<BaseConfiguration> config_;
-	FILE* config_file_;
-	bool error_dump_{false};
-	bool is_dumped_{false};
+  std::shared_ptr<BaseConfiguration> config_;
+  FILE* config_file_;
+  bool error_dump_{false};
+  bool is_dumped_{false};
 };
 
 } // namespace kkv

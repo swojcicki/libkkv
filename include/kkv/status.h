@@ -33,9 +33,8 @@ using Result = State;
 struct Status {
  public:
   Status() : state_(State::kOk), message_("") {};
-  explicit Status(State state, Slice message = Slice())
-      : state_(state),
-        message_(message) {};
+  explicit Status(State state, Slice message = Slice()) : state_(state),
+                                                          message_(message) {};
 
   inline void SetState(const State state) { state_ = state; message_ = ""; }
   inline void SetMessage(const Slice& message) { message_ = message; }

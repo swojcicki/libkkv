@@ -64,7 +64,7 @@ bool FileSystemUtils::IsDir(const fs::path& path) noexcept {
 }
 
 Result FileSystemUtils::CreateDir(const fs::path& path, const bool allow_exist)
-noexcept {
+    noexcept {
   if (IsDir(path)) {
     if (allow_exist) {
       SPDLOG_DEBUG("(Ok) Directory \"{}\" exists", path.c_str());
@@ -93,7 +93,7 @@ noexcept {
 }
 
 Result FileSystemUtils::CreateFile(const fs::path& path, const bool allow_exist)
-noexcept {
+    noexcept {
   if (IsFile(path)) {
     if (allow_exist) {
       SPDLOG_DEBUG("(Ok) File \"{}\" exists", path.c_str());

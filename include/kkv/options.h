@@ -52,7 +52,7 @@ enum class SectorSize : uint32_t {
   kDefaultSectorSize = k2MiB,
 };
 
-}	// namespace constants
+} // namespace constants
 
 
 struct DBConfig {
@@ -60,7 +60,9 @@ struct DBConfig {
   uint16_t slots_count;
   uint32_t sector_size;
 
-  inline static constexpr size_t TotalSize() { return 2 + 2 + 4; }
+  inline static constexpr size_t TotalSize() {
+    return sizeof(partitions_count) + sizeof(slots_count) + sizeof(sector_size);
+  }
 
   static bool IsValidPartitionsCount(uint16_t n);
   static bool IsValidSlotsCount(uint16_t n);

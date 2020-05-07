@@ -1,7 +1,7 @@
 /**
  *
- * @file	  streamer.cc
- * @author	damianzim
+ * @file    streamer.cc
+ * @author  damianzim
  * @date    2020-04-14
  *
  */

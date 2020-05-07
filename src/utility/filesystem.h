@@ -28,9 +28,9 @@ struct FileSystemUtils {
   static bool IsDir(const fs::path& path) noexcept;
 
   static Result CreateDir(const fs::path& path, bool allow_exist = true)
-  noexcept;
+      noexcept;
   static Result CreateFile(const fs::path& path, bool allow_exist = false)
-  noexcept;
+      noexcept;
 
   // The file name is not necessary, it is only used for logging and is unknown
   // by default.
