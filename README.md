@@ -1,8 +1,23 @@
 # KKV
 
+## Usage
+
+```bash
+git clone --recurse-submodules https://github.com/damianzim/libkkv.git
+```
+
 ## Developing
 
 ### Build
+
+```bash
+mkdir build && cd build
+
+cmake -DKKV_BUILD_EXAMPLE_TEST=1 ..
+make
+```
+
+or just
 
 ```bash
 sh build_example_test.sh
