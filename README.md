@@ -8,6 +8,13 @@
 sh build_example_test.sh
 ```
 
+### Running
+
+From the `build/` directory:
+```bash
+example/test/test --help
+```
+
 ### Code style
 
 While coding please follow the [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html).

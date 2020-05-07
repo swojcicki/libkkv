@@ -18,8 +18,8 @@ enum Mode {
 };
 
 static std::map<std::string, int> modes = {
-    { "db", Mode::DB },
-    { "slice", Mode::Slice },
+  { "db", Mode::DB },
+  { "slice", Mode::Slice },
 };
 
 
