@@ -9,6 +9,7 @@
 #ifndef KKV_UTILITY_UTILS_H_
 #define KKV_UTILITY_UTILS_H_
 
+#include <stddef.h>
 #include <stdint.h>
 
 namespace kkv {
@@ -30,6 +31,13 @@ inline uint32_t RoundUpPowerOf2(uint32_t a) {
 }
 
 } // namespace math
+
+namespace hash {
+
+uint32_t CRC32(const void* data, size_t length);
+bool VerifyCRC32(const void* data, size_t length, uint32_t crc);
+
+} // namespace hash
 
 } // namespace kkv
 

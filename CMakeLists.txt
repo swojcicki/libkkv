@@ -39,6 +39,14 @@ set(kkv_core_SOURCES
     src/core/streamer.cc
     )
 
+set(kkv_infrastructure_HEADERS
+    src/infrastructure/hashtable.h
+    )
+
+set(kkv_infrastructure_SOURCES
+    src/infrastructure/hashtable.cc
+    )
+
 set(kkv_utility_HEADERS
     src/utility/filesystem.h
     src/utility/utils.h
@@ -46,18 +54,21 @@ set(kkv_utility_HEADERS
 
 set(kkv_utility_SOURCES
     src/utility/filesystem.cc
+    src/utility/utils.cc
     )
 
 set(kkv_all_HEADERS
     ${kkv_HEADERS}
     ${kkv_common_HEADERS}
     ${kkv_core_HEADERS}
+    ${kkv_infrastructure_HEADERS}
     ${kkv_utility_HEADERS}
     )
 
 set(kkv_all_SOURCES
     ${kkv_SOURCES}
     ${kkv_core_SOURCES}
+    ${kkv_infrastructure_SOURCES}
     ${kkv_utility_SOURCES}
     )
 
@@ -65,6 +76,8 @@ source_group(kkv                    FILES ${kkv_HEADERS})
 source_group(kkv\\common            FILES ${kkv_common_HEADERS})
 source_group(kkv\\core              FILES ${kkv_core_HEADERS})
 source_group(kkv\\core              FILES ${kkv_core_SOURCES})
+source_group(kkv\\infrastructure    FILES ${kkv_infrastructure_HEADERS})
+source_group(kkv\\infrastructure    FILES ${kkv_infrastructure_SOURCES})
 source_group(kkv\\utility           FILES ${kkv_utility_HEADERS})
 source_group(kkv\\utility           FILES ${kkv_utility_SOURCES})
 
