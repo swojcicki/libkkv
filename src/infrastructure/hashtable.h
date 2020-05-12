@@ -24,6 +24,10 @@ class HashTable {
       : slots_(slots), divisor_(partitions * slots) {};
 
   TPairDest GetDestination(const Slice& key);
+  size_t GetSlotIndex(const Slice& key);
+
+  TPairDest IndexToPairDest(size_t index);
+  size_t PairDestToIndex(const TPairDest& pair_dest);
 
  private:
   uint16_t slots_;
