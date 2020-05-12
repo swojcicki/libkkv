@@ -12,6 +12,7 @@
 
 #include "common/types.h"
 #include "kkv/logger.h"
+#include "utility/utils.h"
 
 namespace kkv {
 
@@ -51,10 +52,23 @@ Result Configuration::Open() {
 }
 
 bool Configuration::Dump() {
+  using namespace utils;
+
   constexpr auto config_size = DBConfig::TotalSize();
   TByte buffer[config_size];
-  memcpy(static_cast<void *>(buffer),
-         static_cast<const void *>(&config_->config_), config_size);
+
+  if (!IsLittleEndian()) {
+    DBConfig config {
+      ChangeEndianness16(config_->GetPartitionsCount()),
+      ChangeEndianness16(config_->GetSlotsCount()),
+      ChangeEndianness32(config_->GetSectorSize()),
+    };
+
+    memcpy(&buffer, static_cast<const void *>(&config), config_size);
+  } else {
+    memcpy(&buffer, static_cast<const void *>(&config_->config_), config_size);
+  }
+
 
   if (!FileUtils::Rewind(config_file_, path_.c_str()))
     return false;
@@ -78,12 +92,14 @@ bool Configuration::Load() {
     return false;
   }
 
-  auto is_config_touched = config_->is_config_touched_;
-
   size_t offset = 0;
-  decltype(DBConfig::partitions_count) p_count;
+
+  uint16_t p_count;
   memcpy(&p_count, buffer, sizeof(p_count));
   offset += sizeof(p_count);
+
+  if (!utils::IsLittleEndian())
+    p_count = utils::ChangeEndianness16(p_count);
 
   if (!DBConfig::IsValidPartitionsCount(p_count)) {
     spdlog::critical("Illegal number of partitions (config file)");
@@ -91,7 +107,7 @@ bool Configuration::Load() {
   }
 
   if (p_count != config_->GetPartitionsCount()) {
-    if (is_config_touched) {
+    if (config_->is_config_touched_) {
       spdlog::warn("The new number of partitions ({}) doesn't match the "
                    "configuration file ({})", config_->GetPartitionsCount(),
                    p_count);
@@ -101,9 +117,12 @@ bool Configuration::Load() {
     spdlog::info("Partitions count has been restored to ({})", p_count);
   }
 
-  decltype(DBConfig::slots_count) s_count;
+  uint16_t s_count;
   memcpy(&s_count, buffer + offset, sizeof(s_count));
   offset += sizeof(s_count);
+
+  if (!utils::IsLittleEndian())
+    s_count = utils::ChangeEndianness16(s_count);
 
   if (!DBConfig::IsValidSlotsCount(s_count)) {
     spdlog::critical("Illegal number of slots (config file)");
@@ -111,7 +130,7 @@ bool Configuration::Load() {
   }
 
   if (s_count != config_->GetSlotsCount()) {
-    if (is_config_touched) {
+    if (config_->is_config_touched_) {
       spdlog::warn("The new number of slots ({}) doesn't match the "
                    "configuration file ({})", config_->GetSlotsCount(),
                    s_count);
@@ -121,8 +140,11 @@ bool Configuration::Load() {
     spdlog::info("Slots count has been restored to ({})", s_count);
   }
 
-  decltype(DBConfig::sector_size) s_size;
+  uint32_t s_size;
   memcpy(&s_size, buffer + offset, sizeof(s_size));
+
+  if (!utils::IsLittleEndian())
+    s_size = utils::ChangeEndianness32(s_size);
 
   if (!DBConfig::IsValidSectorSize({ p_count, s_count }, s_size)) {
     spdlog::critical("Illegal sector size (config file)");
@@ -130,7 +152,7 @@ bool Configuration::Load() {
   }
 
   if (s_size != config_->GetSectorSize()) {
-    if (is_config_touched) {
+    if (config_->is_config_touched_) {
       spdlog::warn("The new sector size ({}) doesn't match the configuration "
                    "file ({})", config_->GetSectorSize(), s_size);
     }

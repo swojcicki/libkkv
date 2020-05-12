@@ -9,6 +9,7 @@
 #ifndef KKV_COMMON_TYPES_H_
 #define KKV_COMMON_TYPES_H_
 
+#include <stddef.h>
 #include <stdint.h>
 
 namespace kkv {

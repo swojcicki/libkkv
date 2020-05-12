@@ -20,7 +20,7 @@
 
 namespace kkv {
 
-class DBCore : public DB {
+class DBCore final : public DB {
  public:
   DBCore(const Slice& path, Options& options);
 
