@@ -8,7 +8,10 @@
 
 #include "core/streamer.h"
 
+#include <stdexcept>
+
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include "infrastructure/pair.h"
 
 namespace kkv {
 
@@ -93,6 +96,16 @@ const size_t &Streamer::CalcEmptyBufferSize() const {
   }(config_->GetAllSectorsSize());
 
   return size;
+}
+
+Stream* Streamer::operator[](const size_t index) {
+  if (index >= streams_no_) {
+    SPDLOG_DEBUG("Stream {} is out of range, the number of available streams "
+                 "is {}", index, streams_no_);
+    throw std::out_of_range("There is not stream to get");
+  }
+
+  return streams_[index].get();
 }
 
 bool Streamer::AllocateEmptySpace(const Stream* stream) {
