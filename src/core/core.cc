@@ -57,7 +57,7 @@ DBCore::DBCore(const Slice& path, Options& options)
   }
 
   try {
-    streamer_ = new Streamer(options_);
+    streamer_ = std::make_unique<Streamer>(options_);
   } catch (const std::bad_alloc& err) {
     SPDLOG_CRITICAL(err.what());
     status_.Set(State::kFatal, "Allocation error (Streamer)");
@@ -70,11 +70,7 @@ DBCore::DBCore(const Slice& path, Options& options)
   status_.Set(State::kOk, "Database initialized successfully");
 };
 
-DBCore::~DBCore() {
-  delete streamer_;
-
-  Paths::CloseFile(lock_file_);
-}
+DBCore::~DBCore() { Paths::CloseFile(lock_file_); }
 
 DB::~DB() = default;
 

@@ -59,7 +59,7 @@ static const uint32_t kCRC32LookupTable[] = {
 
 namespace hash {
 
-uint32_t CRC32(const void* data, size_t length) {
+uint32_t CRC32(const void* data, const size_t length) {
   if (data == nullptr)
     return 0;
 
@@ -73,7 +73,7 @@ uint32_t CRC32(const void* data, size_t length) {
   return crc32 ^ 0xFFFFFFFF;
 }
 
-bool VerifyCRC32(const void* data, size_t length, uint32_t crc) {
+bool VerifyCRC32(const void* data, const size_t length, const uint32_t crc) {
   const auto calc_crc = CRC32(data, length);
 
   return crc == calc_crc;

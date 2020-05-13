@@ -72,6 +72,42 @@ inline uint32_t ChangeEndianness32(uint32_t value) {
   return result;
 }
 
+template<typename T, class = typename std::enable_if_t<std::is_unsigned_v<T>>>
+inline T ChangeUnsignedEndianness(T value) {
+  auto size = sizeof(T);
+
+  if (size == 1) return value;
+
+  const auto half_bits = size * 4;
+  T result = 0;
+
+  for (; size; size -= 2) {
+		result |= (value & (T)0xFF << half_bits - size * 4) << (size - 1) * 8;
+    result |= (value & (T)0xFF << half_bits + (size / 2 - 1) * 8)
+        >> (size - 1) * 8;
+  }
+
+	return result;
+}
+
+template<typename T, class = typename std::enable_if_t<std::is_unsigned_v<T>>>
+inline std::string UnsignedToString(T value) {
+  std::string result;
+
+  auto size = sizeof(T);
+  while (size)
+    result.push_back((value >> (--size * 8)) & 0xFFU);
+
+  return result;
+}
+
+template<typename T, class = typename std::enable_if_t<std::is_unsigned_v<T>>>
+std::string UnsignedToLittleEndianString(T value) {
+  return UnsignedToString(IsLittleEndian()
+                          ? value
+                          : ChangeUnsignedEndianness<T>(value));
+}
+
 } // namespace utils
 
 } // namespace kkv

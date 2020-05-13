@@ -39,7 +39,7 @@ class DBCore final : public DB {
   std::unique_ptr<Configuration> configuration_;
   FILE* lock_file_;
   Paths paths_;
-  Streamer* streamer_;
+  std::unique_ptr<Streamer> streamer_;
 };
 
 } // namespace kkv

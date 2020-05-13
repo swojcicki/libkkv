@@ -62,11 +62,10 @@ class Streamer {
 
   Status Init(const Paths& paths);
 
-  bool AllocateEmptySpace(const Stream* stream);
-
  private:
   [[nodiscard]] const size_t &CalcEmptyBufferSize() const;
 
+  bool AllocateEmptySpace(const Stream* stream);
   void InitLogger();
 
   const std::shared_ptr<BaseConfiguration> config_;

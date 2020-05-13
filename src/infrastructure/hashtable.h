@@ -9,6 +9,8 @@
 #ifndef KKV_INFRASTRUCTURE_HASHTABLE_H_
 #define KKV_INFRASTRUCTURE_HASHTABLE_H_
 
+#include <string_view>
+
 #include "kkv/slice.h"
 
 namespace kkv {
@@ -24,10 +26,9 @@ class HashTable {
       : slots_(slots), divisor_(partitions * slots) {};
 
   TPairDest GetDestination(const Slice& key);
-  size_t GetSlotIndex(const Slice& key);
+  TPairDest GetDestination(const std::string_view& key);
 
   TPairDest IndexToPairDest(size_t index);
-  size_t PairDestToIndex(const TPairDest& pair_dest);
 
  private:
   uint16_t slots_;

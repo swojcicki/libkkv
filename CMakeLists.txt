@@ -41,10 +41,12 @@ set(kkv_core_SOURCES
 
 set(kkv_infrastructure_HEADERS
     src/infrastructure/hashtable.h
+    src/infrastructure/pair.h
     )
 
 set(kkv_infrastructure_SOURCES
     src/infrastructure/hashtable.cc
+    src/infrastructure/pair.cc
     )
 
 set(kkv_utility_HEADERS
