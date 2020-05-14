@@ -48,6 +48,11 @@ uint32_t DBConfig::GetMaxSectorSize(const uint16_t slots_count) {
   return max;
 }
 
+uint16_t DBConfig::GetMaxSlotsCountBySectorSize(const uint32_t sector_size) {
+  const uint16_t max = kMaxPartitionSize / sector_size;
+  return max > kMaxSlotsCount ? kMaxSlotsCount : max;
+}
+
 // BaseConfiguration
 
 uint16_t BaseConfiguration::GetPartitionsCount() const {
@@ -88,14 +93,17 @@ void BaseConfiguration::SetPartitionsCount(const uint16_t n) {
 void BaseConfiguration::SetSlotsCount(const uint16_t n) {
   is_config_touched_ = true;
 
+  const auto max_slots_count = DBConfig::GetMaxSlotsCountBySectorSize(
+      config_.sector_size);
+
   if (n < kMinSlotsCount) {
     config_.slots_count = kMinSlotsCount;
     spdlog::warn("New slots count ({}) is too small MIN = {}", n,
                  kMinSlotsCount);
-  } else if (n > kMaxSlotsCount) {
-    config_.slots_count = kMaxSlotsCount;
+  } else if (n > max_slots_count) {
+    config_.slots_count = max_slots_count;
     spdlog::warn("New slots count ({}) is too large MAX = {}", n,
-                 kMaxSlotsCount);
+                 max_slots_count);
   } else {
     config_.slots_count = n;
   }
@@ -103,12 +111,7 @@ void BaseConfiguration::SetSlotsCount(const uint16_t n) {
   spdlog::debug("Slots count has been set to ({})", config_.slots_count);
 }
 
-// If an invalid (too large) sector size is given, it will be restored to the
-// default one.
 void BaseConfiguration::SetSectorSize(const SectorSize& size) {
-  // TODO: This method may allow a sector size that is not allowed. This can
-  // happen when setting the sector size before setting the number of slots.
-
   is_config_touched_ = true;
   const auto param_size = static_cast<uint32_t>(size);
 

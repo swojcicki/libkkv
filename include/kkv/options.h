@@ -71,6 +71,7 @@ struct DBConfig {
   static bool IsValidSectorSize(const DBConfig& config, uint32_t size);
 
   static uint32_t GetMaxSectorSize(uint16_t slots_count);
+  static uint16_t GetMaxSlotsCountBySectorSize(uint32_t sector_size);
 };
 
 class Configuration;
@@ -90,6 +91,8 @@ class BaseConfiguration {
 
   void SetPartitionsCount(uint16_t n);
   void SetSlotsCount(uint16_t n);
+  // If an invalid (too large) sector size is given, it will be restored to the
+  // default one.
   void SetSectorSize(const constants::SectorSize& size);
 
  private:
