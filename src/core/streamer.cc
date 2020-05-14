@@ -20,7 +20,7 @@ namespace {
 using constants::SectorSize;
 
 constexpr auto kMinEmptyBufferSize = static_cast<uint32_t>(SectorSize::k4KiB);
-constexpr auto kMaxEmptyBufferSize = static_cast<uint32_t>(SectorSize::k1MiB);
+constexpr auto kMaxEmptyBufferSize = static_cast<uint32_t>(SectorSize::k256MiB);
 
 } // namespace anonymous
 
@@ -85,7 +85,19 @@ Status Streamer::Init(const Paths& paths) {
   return Status();
 }
 
-const size_t &Streamer::CalcEmptyBufferSize() const {
+const std::vector<size_t>& Streamer::CalcEmptyBufferSizes() const {
+  static const std::vector<size_t> sizes = [](const size_t &max_buffer_size) {
+    std::vector<size_t> temp_sizes;
+    for (auto i = max_buffer_size; i >= kMinEmptyBufferSize; i >>= 1U)
+        temp_sizes.push_back(i);
+
+    return temp_sizes;
+  }(CalcMaxEmptyBufferSize());
+
+  return sizes;
+}
+
+const size_t &Streamer::CalcMaxEmptyBufferSize() const {
   static const size_t size = [](uint64_t all_sectors_size) {
     for (auto i = kMaxEmptyBufferSize; i >= kMinEmptyBufferSize; i >>= 1U) {
       if (i <= all_sectors_size)
@@ -109,15 +121,24 @@ Stream* Streamer::operator[](const size_t index) {
 }
 
 bool Streamer::AllocateEmptySpace(const Stream* stream) {
-  static const auto buffer_size = CalcEmptyBufferSize();
+  static size_t selected_buffer_size = 0;
 
   if (buffer_ == nullptr) {
-    try {
-      // TODO: If this fails, try allocating smaller buffer.
-      // Then the kMaxEmptyBufferSize can be boldly increased.
-      buffer_ = new TByte[buffer_size];
-    } catch (const std::bad_alloc& err) {
-      SPDLOG_CRITICAL(err.what());
+    for (const auto& i : CalcEmptyBufferSizes()) {
+      try {
+        buffer_ = new TByte[i];
+      } catch (const std::bad_alloc& err) {
+        SPDLOG_DEBUG(err.what());
+        SPDLOG_WARN("Cannot allocate empty buffer with size {}", i);
+        continue;
+      }
+
+      selected_buffer_size = i;
+      break;
+    }
+
+    if (buffer_ == nullptr) {
+      SPDLOG_CRITICAL("Cannot allocate any empty buffer");
       return false;
     }
   }
@@ -127,13 +148,13 @@ bool Streamer::AllocateEmptySpace(const Stream* stream) {
 
   uint64_t saved = 0;
   while (saved < config_->GetAllSectorsSize()) {
-    if (!fwrite(buffer_, buffer_size, 1, stream->file_)) {
+    if (!fwrite(buffer_, selected_buffer_size, 1, stream->file_)) {
       spdlog::error("Could not write to the file {}", stream->Name());
       break;
     } else {
-      saved += buffer_size;
+      saved += selected_buffer_size;
       SPDLOG_TRACE("{} saved: {}, total: {}", stream->Name(),
-                   buffer_size, saved);
+                   selected_buffer_size, saved);
     }
   }
 

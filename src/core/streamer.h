@@ -13,6 +13,7 @@
 
 #include <filesystem>
 #include <memory>
+#include <vector>
 
 #include "common/types.h"
 #include "infrastructure/hashtable.h"
@@ -65,7 +66,8 @@ class Streamer : public HashTable {
   Status Init(const Paths& paths);
 
  private:
-  [[nodiscard]] const size_t &CalcEmptyBufferSize() const;
+  [[nodiscard]] const std::vector<size_t>& CalcEmptyBufferSizes() const;
+  [[nodiscard]] const size_t &CalcMaxEmptyBufferSize() const;
 
   Stream* operator[](size_t index);
 
