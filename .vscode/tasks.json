@@ -1,0 +1,44 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "remove debug/",
+            "type": "shell",
+            "command": "rm -rf debug/"
+        },
+        {
+            "label": "create debug/",
+            "type": "shell",
+            "command": "mkdir -p debug"
+        },
+        {
+            "label": "remove container/",
+            "type": "shell",
+            "command": "rm -rf debug/container/"
+        },
+        {
+            "label": "build example test",
+            "type": "shell",
+            "command": "cd debug && cmake -DKKV_BUILD_EXAMPLE_TEST=1 .. && make",
+            "dependsOn": [
+                "create debug/"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "build example test with new container",
+            "type": "shell",
+            "dependsOn": [
+                "create debug/",
+                "remove container/",
+                "build example test"
+            ]
+        }
+    ]
+}
