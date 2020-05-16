@@ -47,6 +47,8 @@ int main(int argc, char *argv[]) {
     return print_help();
 
   auto mode = is_valid_mode(argv[1]);
+  if (mode < 1)
+    return print_help();
 
   switch (mode) {
     case Mode::DB:
@@ -59,5 +61,5 @@ int main(int argc, char *argv[]) {
       break;
   }
 
-  return mode ? 0 : print_help();
+  return 0;
 }
