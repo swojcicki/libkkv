@@ -33,9 +33,25 @@ const std::string& Stream::Name() const {
 
 const fs::path& Stream::Path() const { return path_; }
 
+int64_t Stream::Size() const { return size_; }
+
 bool Stream::Open() {
   file_ = fopen(path_.c_str(), "r+b");
   return file_ != nullptr;
+}
+
+bool Stream::UpdateSize() {
+  if (fseeko(file_, 0, SEEK_END)) {
+    SPDLOG_WARN("Could not change the position in the stream ({})", Name());
+    return false;
+  }
+
+  if ((size_ = ftello(file_)) < 0) {
+    spdlog::warn("Could not check stream size ({})", Name());
+    return false;
+  } else {
+    return true;
+  }
 }
 
 // Streamer
@@ -69,6 +85,11 @@ Status Streamer::Init(const Paths& paths) {
                       "Could not allocate space in partition file");
       }
     }
+
+    if (streams_[i]->UpdateSize())
+      SPDLOG_DEBUG("Stream {} has size ({})", streams_[i]->Name(),
+                                              streams_[i]->Size());
+
   }
 
   delete[] buffer_;

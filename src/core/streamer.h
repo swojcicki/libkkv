@@ -42,14 +42,19 @@ class Stream {
   [[nodiscard]] const std::string& Name() const;
   [[nodiscard]] const fs::path& Path() const;
 
+  int64_t Size() const;
+
   bool Open();
 
  private:
   friend class Streamer;
 
+  bool UpdateSize();
+
   const fs::path path_;
 
   FILE* file_;
+  int64_t size_;
 };
 
 class Streamer : public HashTable {
