@@ -55,56 +55,55 @@ enum class SectorSize : uint32_t {
 } // namespace constants
 
 
-struct DBConfig {
-  uint16_t partitions_count;
-  uint16_t slots_count;
-  uint32_t sector_size;
-
-  inline static constexpr size_t TotalSize() {
-    return sizeof(partitions_count) + sizeof(slots_count) + sizeof(sector_size);
-  }
-
-  static bool IsValidPartitionsCount(uint16_t n);
-  static bool IsValidSlotsCount(uint16_t n);
-  // slots_count member should be set first to check if the sector size is
-  // correct
-  static bool IsValidSectorSize(const DBConfig& config, uint32_t size);
-
-  static uint32_t GetMaxSectorSize(uint16_t slots_count);
-  static uint16_t GetMaxSlotsCountBySectorSize(uint32_t sector_size);
-};
-
-class Configuration;
-
 class BaseConfiguration {
  public:
-  BaseConfiguration() : config_({
-      constants::kDefaultPartitionsCount,
-      constants::kDefaultSlotsCount,
-      static_cast<uint32_t>(constants::SectorSize::kDefaultSectorSize)}) {};
+  struct Config {
+    inline static constexpr size_t TotalSize() {
+      return sizeof(partitions_count) +
+             sizeof(slots_count) +
+             sizeof(sector_size);
+    }
 
-  uint16_t GetPartitionsCount() const;
-  uint16_t GetSlotsCount() const;
-  uint32_t GetSectorSize() const;
+    // Return 0 if the slots_count parameter is not valid
+    static uint32_t GetMaxSectorSize(uint16_t slots_count);
+    static uint16_t GetMaxSlotsCountBySectorSize(uint32_t sector_size);
 
-  uint64_t GetAllSectorsSize() const;
+    static bool IsValidPartitionsCount(uint16_t n);
+    static bool IsValidSlotsCount(uint16_t n);
+    // slots_count member should be set first to check if the sector size is
+    // correct
+    static bool IsValidSectorSize(const Config& config, uint32_t size);
 
-  void SetPartitionsCount(uint16_t n);
-  void SetSlotsCount(uint16_t n);
+    uint16_t partitions_count;
+    uint16_t slots_count;
+    uint32_t sector_size;
+  };
+
+  BaseConfiguration() = default;
+
+  [[nodiscard]] uint16_t GetPartitionsCount() const;
+  [[nodiscard]] uint16_t GetSlotsCount() const;
+  [[nodiscard]] uint32_t GetSectorSize() const;
+
+  // Return true if the given number has been set, otherwise false
+  bool SetPartitionsCount(uint16_t n);
+  // Return true if the given number has been set, otherwise false
+  bool SetSlotsCount(uint16_t n);
   // If an invalid (too large) sector size is given, it will be restored to the
   // default one.
-  void SetSectorSize(const constants::SectorSize& size);
+  // Return true if the given number has been set, otherwise false
+  bool SetSectorSize(const constants::SectorSize& size);
 
- private:
-  friend class Configuration;
-
-  DBConfig config_;
+ protected:
+  Config config_{
+      constants::kDefaultPartitionsCount,
+      constants::kDefaultSlotsCount,
+      static_cast<uint32_t>(constants::SectorSize::kDefaultSectorSize)};
   bool is_config_touched_{false};
 };
 
-class Options : public BaseConfiguration {
- public:
-  bool error_when_exists_ = false;
+struct Options : public BaseConfiguration {
+  bool error_when_exists = false;
 };
 
 } // namespace kkv

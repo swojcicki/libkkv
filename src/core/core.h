@@ -20,9 +20,9 @@
 
 namespace kkv {
 
-class DBCore final : public DB {
+class DBCore final : public DB, protected Streamer {
  public:
-  DBCore(const Slice& path, Options& options);
+  DBCore(const Slice& path, const std::shared_ptr<Configuration>&& config);
 
   DBCore(const DBCore&) = delete;
   DBCore& operator=(const DBCore&) = delete;
@@ -34,12 +34,11 @@ class DBCore final : public DB {
  private:
   friend class DB;
 
-  const std::shared_ptr<Options> options_;
+  // Is this necessary? Streamer basically has such a pointer.
+  const std::shared_ptr<Configuration> config_;
 
-  std::unique_ptr<Configuration> configuration_;
   FILE* lock_file_;
   Paths paths_;
-  std::unique_ptr<Streamer> streamer_;
 };
 
 } // namespace kkv

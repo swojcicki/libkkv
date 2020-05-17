@@ -50,6 +50,8 @@ class PairConfig {
 
   void SetDeleted();
 
+  void UnsetValueAsBytes();
+
  protected:
   [[nodiscard]] TByte GetConfig() const;
 

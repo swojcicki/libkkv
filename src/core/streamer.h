@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "common/types.h"
+#include "core/configuration.h"
 #include "infrastructure/hashtable.h"
 #include "kkv/logger.h"
 #include "kkv/options.h"
@@ -54,13 +55,13 @@ class Stream {
   const fs::path path_;
 
   FILE* file_;
-  int64_t size_;
+  int64_t size_{0};
 };
 
 class Streamer : public HashTable {
  public:
-  explicit Streamer(const std::shared_ptr<BaseConfiguration> config)
-      : HashTable(config->GetPartitionsCount(), config->GetSlotsCount()),
+  explicit Streamer(const std::shared_ptr<Configuration>& config)
+      : HashTable(config->GetPartitionsCountRef(), config->GetSlotsCountRef()),
         config_(config),
         streams_no_(config->GetPartitionsCount()),
         buffer_(nullptr),
@@ -68,6 +69,7 @@ class Streamer : public HashTable {
 
   ~Streamer() { delete[] buffer_; }
 
+ protected:
   Status Init(const Paths& paths);
 
  private:
@@ -79,7 +81,7 @@ class Streamer : public HashTable {
   bool AllocateEmptySpace(const Stream* stream);
   void InitLogger();
 
-  const std::shared_ptr<BaseConfiguration> config_;
+  const std::shared_ptr<Configuration> config_;
   const size_t streams_no_;
 
   TByte *buffer_; // Used for empty buffer

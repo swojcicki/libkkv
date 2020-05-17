@@ -17,27 +17,8 @@ using namespace constants;
 
 // DBConfig
 
-bool DBConfig::IsValidPartitionsCount(const uint16_t n) {
-  return n >= kMinPartitionsCount && n <= kMaxPartitionsCount;
-}
-
-bool DBConfig::IsValidSlotsCount(const uint16_t n) {
-  return n >= kMinSlotsCount && n <= kMaxSlotsCount;
-}
-
-bool DBConfig::IsValidSectorSize(const DBConfig& config, const uint32_t size) {
-  const auto min = static_cast<uint32_t>(SectorSize::k4KiB);
-  const auto max = GetMaxSectorSize(config.slots_count);
-  if (!max) {
-    spdlog::warn("Invalid slots count ({})", config.slots_count);
-    return false;
-  }
-
-  return !(!math::IsPowerOf2(size) || size < min || size > max);
-}
-
-// Returns 0 if the slots_count parameter is not valid
-uint32_t DBConfig::GetMaxSectorSize(const uint16_t slots_count) {
+uint32_t BaseConfiguration::Config::GetMaxSectorSize(
+    const uint16_t slots_count) {
   if (!IsValidSlotsCount(slots_count))
     return 0;
 
@@ -48,9 +29,30 @@ uint32_t DBConfig::GetMaxSectorSize(const uint16_t slots_count) {
   return max;
 }
 
-uint16_t DBConfig::GetMaxSlotsCountBySectorSize(const uint32_t sector_size) {
+uint16_t BaseConfiguration::Config::GetMaxSlotsCountBySectorSize(
+    const uint32_t sector_size) {
   const uint16_t max = kMaxPartitionSize / sector_size;
   return max > kMaxSlotsCount ? kMaxSlotsCount : max;
+}
+
+bool BaseConfiguration::Config::IsValidPartitionsCount(const uint16_t n) {
+  return n >= kMinPartitionsCount && n <= kMaxPartitionsCount;
+}
+
+bool BaseConfiguration::Config::IsValidSlotsCount(const uint16_t n) {
+  return n >= kMinSlotsCount && n <= kMaxSlotsCount;
+}
+
+bool BaseConfiguration::Config::IsValidSectorSize(const Config& config,
+                                                  const uint32_t size) {
+  const auto min = static_cast<uint32_t>(SectorSize::k4KiB);
+  const auto max = GetMaxSectorSize(config.slots_count);
+  if (!max) {
+    spdlog::warn("Invalid slots count ({})", config.slots_count);
+    return false;
+  }
+
+  return !(!math::IsPowerOf2(size) || size < min || size > max);
 }
 
 // BaseConfiguration
@@ -67,11 +69,7 @@ uint32_t BaseConfiguration::GetSectorSize() const {
   return config_.sector_size;
 }
 
-uint64_t BaseConfiguration::GetAllSectorsSize() const {
-  return 1ULL * config_.slots_count * config_.sector_size;
-}
-
-void BaseConfiguration::SetPartitionsCount(const uint16_t n) {
+bool BaseConfiguration::SetPartitionsCount(const uint16_t n) {
   is_config_touched_ = true;
 
   if (n < kMinPartitionsCount) {
@@ -88,12 +86,14 @@ void BaseConfiguration::SetPartitionsCount(const uint16_t n) {
 
   spdlog::debug("Partitions count has been set to ({})",
                 config_.partitions_count);
+
+  return n == config_.partitions_count;
 }
 
-void BaseConfiguration::SetSlotsCount(const uint16_t n) {
+bool BaseConfiguration::SetSlotsCount(const uint16_t n) {
   is_config_touched_ = true;
 
-  const auto max_slots_count = DBConfig::GetMaxSlotsCountBySectorSize(
+  const auto max_slots_count = Config::GetMaxSlotsCountBySectorSize(
       config_.sector_size);
 
   if (n < kMinSlotsCount) {
@@ -109,13 +109,15 @@ void BaseConfiguration::SetSlotsCount(const uint16_t n) {
   }
 
   spdlog::debug("Slots count has been set to ({})", config_.slots_count);
+
+  return n == config_.slots_count;
 }
 
-void BaseConfiguration::SetSectorSize(const SectorSize& size) {
+bool BaseConfiguration::SetSectorSize(const SectorSize& size) {
   is_config_touched_ = true;
   const auto param_size = static_cast<uint32_t>(size);
 
-  if (!DBConfig::IsValidSectorSize(config_, param_size)) {
+  if (!Config::IsValidSectorSize(config_, param_size)) {
     config_.sector_size = static_cast<uint32_t>(SectorSize::kDefaultSectorSize);
     spdlog::warn("Invalid new sector size ({})", param_size);
   } else {
@@ -123,6 +125,8 @@ void BaseConfiguration::SetSectorSize(const SectorSize& size) {
   }
 
   spdlog::debug("Sector size has been set to ({}) Bytes", config_.sector_size);
+
+  return param_size == config_.sector_size;
 }
 
 } // namespace kkv

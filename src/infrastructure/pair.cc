@@ -69,6 +69,10 @@ void PairConfig::SetDeleted() {
   config_ |= kDeleted;
 }
 
+void PairConfig::UnsetValueAsBytes() {
+  config_ &= ~kValueAsBytes;
+}
+
 TByte PairConfig::GetConfig() const { return config_; }
 
 // Pair

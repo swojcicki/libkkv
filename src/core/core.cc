@@ -16,12 +16,11 @@
 
 namespace kkv {
 
-DBCore::DBCore(const Slice& path, Options& options)
-    : options_(std::make_shared<Options>(options)),
-      configuration_(nullptr),
+DBCore::DBCore(const Slice& path, const std::shared_ptr<Configuration>&& config)
+    : Streamer(config),
+      config_(config),
       lock_file_(nullptr),
-      paths_(path),
-      streamer_(nullptr) {
+      paths_(path) {
   status_.SetState(Paths::CreateDir(paths_.Base()));
   if (!status_.ok()) {
     status_.SetMessage("Cannot create DB directory");
@@ -35,36 +34,18 @@ DBCore::DBCore(const Slice& path, Options& options)
     return;
   }
 
-  if (kkv::Paths::IsFile(paths_.PathConfigFile()) &&
-      options_->error_when_exists_) {
+  if (Paths::IsFile(paths_.PathConfigFile()) && config_->error_when_exists) {
     status_.Set(State::kError, "DB already exists");
     return;
   }
 
-  try {
-    configuration_ = std::make_unique<Configuration>(paths_.PathConfigFile(),
-                                                     options_);
-  } catch (const std::bad_alloc& err) {
-    SPDLOG_CRITICAL(err.what());
-    status_.Set(State::kFatal, "Allocation error (Configuration)");
-    return;
-  }
-
-  status_.SetState(configuration_->Open());
+  status_.SetState(config_->Open(paths_.PathConfigFile()));
   if (!status_.ok()) {
     status_.SetMessage("Cannot resolve configuration (see logs)");
     return;
   }
 
-  try {
-    streamer_ = std::make_unique<Streamer>(options_);
-  } catch (const std::bad_alloc& err) {
-    SPDLOG_CRITICAL(err.what());
-    status_.Set(State::kFatal, "Allocation error (Streamer)");
-    return;
-  }
-
-  if (!(status_ = streamer_->Init(paths_)).ok())
+  if (!(status_ = Init(paths_)).ok())
     return;
 
   status_.Set(State::kOk, "Database initialized successfully");
@@ -81,7 +62,8 @@ Status DB::Open(DB** db, const Slice& path, Options options) {
   Status status;
 
   try {
-    dbcore = new DBCore(path, options);
+    dbcore = new DBCore(path, std::make_shared<Configuration>(
+        reinterpret_cast<Configuration&>(options)));
     status = dbcore->status_;
   } catch (const std::bad_alloc& err) {
     SPDLOG_CRITICAL(err.what());

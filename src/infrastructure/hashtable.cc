@@ -13,11 +13,11 @@
 namespace kkv {
 
 TPairDest HashTable::GetDestination(const Slice& key) {
-  return IndexToPairDest(hash::CRC32(key.Data(), key.Size()) % divisor_);
+  return IndexToPairDest(hash::CRC32(key.Data(), key.Size()) % Divisor());
 }
 
 TPairDest HashTable::GetDestination(const std::string_view& key) {
-	return IndexToPairDest(hash::CRC32(key.data(), key.size()) % divisor_);
+	return IndexToPairDest(hash::CRC32(key.data(), key.size()) % Divisor());
 }
 
 TPairDest HashTable::IndexToPairDest(const size_t index) {
@@ -26,5 +26,7 @@ TPairDest HashTable::IndexToPairDest(const size_t index) {
     static_cast<uint16_t>(index % slots_)
   };
 }
+
+uint16_t HashTable::Divisor() const { return partitions_ * slots_; }
 
 } // namespace kkv

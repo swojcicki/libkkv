@@ -20,24 +20,25 @@
 
 namespace kkv {
 
-class Configuration : public FileSystemUtils {
+class Configuration : public Options {
  public:
-  Configuration(const fs::path& path, std::shared_ptr<BaseConfiguration> config)
-      : path_(path),
-        config_(std::move(config)),
-        config_file_(nullptr) {};
+  Configuration() : config_file_(nullptr), path_(nullptr) {};
 
   ~Configuration();
 
-  Result Open();
+  [[nodiscard]] uint64_t GetAllSectorsSize() const;
+
+  const uint16_t &GetPartitionsCountRef() const;
+  const uint16_t &GetSlotsCountRef() const;
+
+  Result Open(const fs::path& config_path);
 
  private:
   bool Dump();
   bool Load();
 
-  const fs::path& path_;
+  const fs::path* path_;
 
-  std::shared_ptr<BaseConfiguration> config_;
   FILE* config_file_;
   bool error_dump_{false};
   bool is_dumped_{false};

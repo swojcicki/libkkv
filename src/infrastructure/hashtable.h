@@ -22,8 +22,8 @@ struct TPairDest {
 
 class HashTable {
  public:
-  HashTable(uint16_t partitions, uint16_t slots)
-      : slots_(slots), divisor_(partitions * slots) {};
+  HashTable(const uint16_t &partitions, const uint16_t &slots)
+      : partitions_(partitions), slots_(slots) {};
 
   TPairDest GetDestination(const Slice& key);
   TPairDest GetDestination(const std::string_view& key);
@@ -31,8 +31,10 @@ class HashTable {
   TPairDest IndexToPairDest(size_t index);
 
  private:
-  uint16_t slots_;
-  uint16_t divisor_;
+  uint16_t Divisor() const;
+
+  const uint16_t &partitions_;
+  const uint16_t &slots_;
 };
 
 } // namespace kkv
